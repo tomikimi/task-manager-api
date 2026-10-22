@@ -1,6 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 const passport = require("passport");
+const userRouter = require("./routes/users");
 const app = express();
 
 const store = new session.MemoryStore();
@@ -18,4 +19,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(express.json());
+
+app.use("/users", userRouter);
 module.exports = { app };
