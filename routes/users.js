@@ -1,28 +1,30 @@
 const express = require("express");
-const pool = require("../db/index");
+const passport = require("passport");
 const { hashPasswordMiddleWare } = require("../util/hashPassword");
+const userController = require("../controllers/usersController");
+const authenticateController = require("../controllers/authController");
+
 const userRouter = express.Router();
 
-userRouter.post("/createUser", hashPasswordMiddleWare, async (req, res) => {
-  try {
-    const { firstName, lastName, email } = req.body;
-    const userPassword = req.passwordHash;
+userRouter
+  .route("/createUser")
+  .post(hashPasswordMiddleWare, userController.createUserAccount);
 
-    const response = await pool.query(
-      `SELECT PUBLIC.GENERAL_USERS_FUNCTION($1,$2,$3,$4,$5,$6,$7)`,
-      ["INSERT", "USER", 0, firstName, lastName, email, userPassword],
-    );
+userRouter.use(
+  passport.authenticate("session"),
+  // (req, res, next) => {
+  //   console.log("Session ID:", req.sessionID);
+  //   console.log("Passport user:", req.user);
+  //   console.log("Passport user ID:", req.user?.userID);
+  //   next();
+  // },
+  authenticateController.validateSesssion,
+);
 
-    const result = response.rows[0].general_users_function;
+userRouter.route("/updateUserAccount").put(userController.updateUserAccount);
 
-    if (result.SUCCESS === true) {
-      res.status(201).json(result);
-    } else {
-      res.status(400).json(result);
-    }
-  } catch (err) {
-    console.error(err);
-  }
-});
+userRouter.use(authenticateController.restrictTo("ADMIN"));
+
+userRouter.route("/deleteUserAccount").delete(userController.deleteUserAccount);
 
 module.exports = userRouter;
