@@ -8,7 +8,7 @@ const hashPasswordMiddleWare = async (req, res, next) => {
     req.passwordHash = saltHash;
     next();
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
@@ -19,7 +19,7 @@ const hashPassword = async (userPassword) => {
     const saltHash = await bcrypt.hash(password, salt);
     return saltHash;
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
@@ -28,7 +28,7 @@ const comparePassword = async (password, hashPassword) => {
     const result = await bcrypt.compare(password, hashPassword);
     return result;
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
   return false;
 };

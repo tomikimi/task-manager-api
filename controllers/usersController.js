@@ -1,6 +1,56 @@
 const { hashPasswordMiddleWare } = require("../util/hashPassword");
 const pool = require("../db/index");
 
+exports.fetchAllUserAccounts = async (req, res) => {
+  try {
+    const response = await pool.query(
+      `SELECT PUBLIC.GENERAL_USERS_FUNCTION($1,$2,$3,$4,$5,$6,$7)`,
+      ["ALL", "", null, "", "", "", ""],
+    );
+
+    const result = response.rows[0].general_users_function;
+
+    if (result.SUCCESS === true) {
+      res.status(200).json(result.DATA);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "An Error Occured While Fetching User Records.",
+    });
+  }
+};
+
+exports.fetchUserAccount = async (req, res) => {
+  try {
+    const userID = req.params.id;
+
+    const response = await pool.query(
+      `SELECT PUBLIC.GENERAL_USERS_FUNCTION($1,$2,$3,$4,$5,$6,$7)`,
+      ["SELECT", "", userID, "", "", "", ""],
+    );
+
+    const result = response.rows[0].general_users_function;
+
+    if (result.SUCCESS === true) {
+      res.status(200).json(result.DATA);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "An Error Occured While Fetching User Record.",
+    });
+  }
+};
+
 exports.createUserAccount = async (req, res) => {
   try {
     const { firstName, lastName, email } = req.body;
@@ -31,9 +81,6 @@ exports.createUserAccount = async (req, res) => {
 exports.updateUserAccount = async (req, res) => {
   try {
     const { firstName, lastName } = req.body;
-
-    console.log(req.userID);
-    console.log(firstName);
 
     const response = await pool.query(
       `SELECT PUBLIC.GENERAL_USERS_FUNCTION($1,$2,$3,$4,$5,$6,$7)`,

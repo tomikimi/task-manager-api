@@ -4,13 +4,11 @@ const { comparePassword } = require("../util/hashPassword");
 const pool = require("../db/index");
 
 passport.serializeUser((user, done) => {
-  console.log("here serializeUser");
   return done(null, user.userID);
 });
 
 passport.deserializeUser(async (user, done) => {
   try {
-    console.log("here deserializeUser");
     const response = await pool.query(
       `SELECT PUBLIC.SELECT_USER_DESERIALIZE_FUNCTION($1)`,
       [user],
@@ -87,8 +85,12 @@ exports.userLogin = async (req, res) => {
       res.status(400).json(result);
     }
   } catch (err) {
-    console.log(err);
-    console.error("An error occured, contact support");
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: "An error occured, contact support",
+    });
   }
 };
 
